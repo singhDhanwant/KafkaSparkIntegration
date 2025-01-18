@@ -1,3 +1,4 @@
 .idea
-StreamingConsumer/.idea
-StreamingConsumer/target
+KafkaJs/node_modules
+target
+spark-warehouse

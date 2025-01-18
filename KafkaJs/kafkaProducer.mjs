@@ -14,10 +14,10 @@ try {
     while (true) {
         await producer.send({
             topic: "test-topic",
-            messages: [{ value: { mesaage: "Hello Kafka" } }],
+            messages: [{ value: "Hello Kafka" }],
         });
+        console.log("Message sent");
     }
-    console.log("Message sent");
     // await producer.disconnect();
 } catch (error) {
     console.log(error.reason);
