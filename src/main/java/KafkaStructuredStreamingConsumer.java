@@ -2,7 +2,10 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.OutputMode;
+import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
+
+import java.util.concurrent.TimeoutException;
 
 public class KafkaStructuredStreamingConsumer {
     public static void main(String[] args) {
@@ -21,16 +24,16 @@ public class KafkaStructuredStreamingConsumer {
                 .option("subscribe", kafkaTopic)
                 .load();
 
-        kafkaStream.createOrReplaceTempView("table");
-        Dataset<Row> messages = spark.sql("select cast(value as string) from table");
+        Dataset<Row> messages = kafkaStream.selectExpr("CAST(value AS STRING)");
 
         try {
-            messages.writeStream()
+            StreamingQuery query = messages.writeStream()
                     .format("console")
                     .outputMode(OutputMode.Append())
-                    .start()
-                    .awaitTermination();
-        } catch (StreamingQueryException e) {
+                    .start();
+
+            query.awaitTermination();
+        } catch (StreamingQueryException | TimeoutException e) {
             throw new RuntimeException(e);
         }
     }
